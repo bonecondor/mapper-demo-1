@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Layer Mapper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            color: #a0a0a0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .data-upload {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .upload-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .dimensions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .dimension-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: transform 0.2s ease;
+        }
+        
+        .dimension-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+        
+        .dimension-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .dimension-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .dimension-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .dimension-status {
+            margin-left: auto;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-available {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+        
+        .status-partial {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+        
+        .status-missing {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .dimension-details {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .network-viz {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .viz-placeholder {
+            height: 400px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a0a0a0;
+            font-size: 1.1rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Social Layer Mapper</h1>
+            <p>Building the architecture for understanding human connections in the invisible world</p>
+        </div>
+        
+        <div class="data-upload">
+            <h3 style="margin-bottom: 1rem;">Data Sources</h3>
+            <p style="color: #a0a0a0; margin-bottom: 1.5rem;">Upload your event data, social graphs, or other sources to begin mapping</p>
+            <input type="file" id="fileInput" accept=".xlsx,.csv,.json" style="display: none;">
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                Upload Data
+            </button>
+            <div id="dataStatus" style="margin-top: 1rem; color: #22c55e;"></div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalPeople">2,735</div>
+                <div class="stat-label">Total People Mapped</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalEvents">4</div>
+                <div class="stat-label">Events Tracked</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="connectionStrength">73%</div>
+                <div class="stat-label">Avg Connection Strength</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="superconnectors">12</div>
+                <div class="stat-label">Identified Superconnectors</div>
+            </div>
+        </div>
+        
+        <div class="dimensions-grid">
+            <div class="dimension-card">
+                <div class="dimension-header">
+                    <div class="dimension-icon">👤</div>
+                    <div class="dimension-title">Identity Layer</div>
+                    <div class="dimension-status status-available">Available</div>
+                </div>
+                <div class="dimension-details">
+                    Name, email, role data from West Ham events. Strong foundation for person identification and deduplication across events.
+                </div>
+            </div>
+            
+            <div class="dimension-card">
+                <div class="dimension-header">
+                    <div class="dimension-icon">⛓️</div>
+                    <div class="dimension-title">Crypto Footprint</div>
+                    <div class="dimension-status status-partial">Partial</div>
+                </div>
+                <div class="dimension-details">
+                    ETH/Solana addresses captured. Need to analyze on-chain activity, transaction patterns, and cross-wallet connections.
+                </div>
+            </div>
+            
+            <div class="dimension-card">
+                <div class="dimension-header">
+                    <div class="dimension-icon">🎯</div>
+                    <div class="dimension-title">Event Behavior</div>
+                    <div class="dimension-status status-available">Available</div>
+                </div>
+                <div class="dimension-details">
+                    Check-in patterns across 4 events (2G1B, HAMVER, JOKE, ILU). Shows engagement quality and repeat attendance.
+                </div>
+            </div>
+            
+            <div class="dimension-card">
+                <div class="dimension-header">
+                    <div class="dimension-icon">🌐</div>
+                    <div class="dimension-title">Social Signals</div>
+                    <div class="dimension-status status-partial">Partial</div>
+                </div>
+                <div class="dimension-details">
+                    "Invited By" data provides network connections. Need Twitter API, group chat analysis, and interaction patterns.
+                </div>
+            </div>
+            
+            <div class="dimension-card">
+                <div class="dimension-header">
+                    <div class="dimension-icon">💬</div>
+                    <div class="dimension-title">Communication Style</div>
+                    <div class="dimension-status status-missing">Missing</div>
+                </div>
+                <div class="dimension-details">
+                    Group chat taxonomy (superconnector, specialist, cheap yapper, etc.). Requires chat analysis and behavioral classification.
+                </div>
+            </div>
+            
+            <div class="dimension-card">
+                <div class="dimension-header">
+                    <div class="dimension-icon">📊</div>
+                    <div class="dimension-title">Influence Metrics</div>
+                    <div class="dimension-status status-missing">Missing</div>
+                </div>
+                <div class="dimension-details">
+                    Relationship strength scoring, network centrality, outcome tracking. Core algorithm development needed.
+                </div>
+            </div>
+        </div>
+        
+        <div class="network-viz">
+            <h3 style="margin-bottom: 1.5rem;">Network Visualization</h3>
+            <div class="viz-placeholder">
+                Network graph will render here once data is processed
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Sample data processing
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('dataStatus').textContent = `Processing ${file.name}...`;
+                
+                // Simulate processing
+                setTimeout(() => {
+                    document.getElementById('dataStatus').textContent = `✓ ${file.name} loaded successfully`;
+                }, 1500);
+            }
+        });
+        
+        // Simulate real-time updates
+        function updateStats() {
+            const elements = ['totalPeople', 'connectionStrength', 'superconnectors'];
+            elements.forEach(id => {
+                const el = document.getElementById(id);
+                if (Math.random() > 0.7) {
+                    el.style.transform = 'scale(1.05)';
+                    setTimeout(() => el.style.transform = 'scale(1)', 200);
+                }
+            });
+        }
+        
+        setInterval(updateStats, 3000);
+    </script>
+</body>
+</html>
