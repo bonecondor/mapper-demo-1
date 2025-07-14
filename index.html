@@ -200,9 +200,9 @@
         <div class="data-upload">
             <h3 style="margin-bottom: 1rem;">Data Sources</h3>
             <p style="color: #a0a0a0; margin-bottom: 1.5rem;">Upload your event data, social graphs, or other sources to begin mapping</p>
-            <input type="file" id="fileInput" accept=".xlsx,.csv,.json" style="display: none;">
-            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-                Upload Data
+            <input type="file" id="fileInput" accept=".xlsx,.csv,.json" style="margin-bottom: 1rem;">
+            <button class="upload-btn" onclick="testUpload()">
+                Test Upload Function
             </button>
             <div id="dataStatus" style="margin-top: 1rem; color: #22c55e;"></div>
         </div>
@@ -307,12 +307,26 @@
         let networkData = null;
         let processedPeople = [];
         
+        // Test function to see if JavaScript is working
+        function testUpload() {
+            document.getElementById('dataStatus').textContent = "JavaScript is working! Now select a file and it should process automatically.";
+            document.getElementById('dataStatus').style.color = "#22c55e";
+        }
+        
         // Real data processing
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                document.getElementById('dataStatus').textContent = `Processing ${file.name}...`;
-                processFile(file);
+                document.getElementById('dataStatus').textContent = `Processing ${file.name}... File size: ${(file.size / 1024 / 1024).toFixed(2)}MB`;
+                document.getElementById('dataStatus').style.color = "#fbbf24";
+                
+                try {
+                    processFile(file);
+                } catch (error) {
+                    document.getElementById('dataStatus').textContent = `❌ Error: ${error.message}`;
+                    document.getElementById('dataStatus').style.color = "#ef4444";
+                    console.error("Upload error:", error);
+                }
             }
         });
         
@@ -320,24 +334,38 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
+                    document.getElementById('dataStatus').textContent = "File read successfully, parsing data...";
+                    
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, {type: 'array'});
+                    
+                    document.getElementById('dataStatus').textContent = `Workbook loaded, found sheets: ${workbook.SheetNames.join(', ')}`;
                     
                     // Process the "By User" sheet if it exists, otherwise use first sheet
                     const sheetName = workbook.SheetNames.includes('By User') ? 'By User' : workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[sheetName];
                     const jsonData = XLSX.utils.sheet_to_json(worksheet);
                     
+                    document.getElementById('dataStatus').textContent = `Processing ${jsonData.length} records from "${sheetName}" sheet...`;
+                    
                     analyzeNetwork(jsonData);
-                    document.getElementById('dataStatus').textContent = `✓ ${file.name} analyzed successfully - ${jsonData.length} people processed`;
+                    document.getElementById('dataStatus').textContent = `✓ Analysis complete! Processed ${jsonData.length} people from ${file.name}`;
+                    document.getElementById('dataStatus').style.color = "#22c55e";
                 } catch (error) {
-                    document.getElementById('dataStatus').textContent = `❌ Error processing file: ${error.message}`;
+                    document.getElementById('dataStatus').textContent = `❌ Processing error: ${error.message}`;
+                    document.getElementById('dataStatus').style.color = "#ef4444";
+                    console.error("Processing error:", error);
                 }
+            };
+            reader.onerror = function() {
+                document.getElementById('dataStatus').textContent = `❌ Could not read file`;
+                document.getElementById('dataStatus').style.color = "#ef4444";
             };
             reader.readAsArrayBuffer(file);
         }
         
         function analyzeNetwork(data) {
+            console.log("Analyzing data:", data.slice(0, 3)); // Log first 3 records
             processedPeople = data.map(person => analyzePerson(person));
             updateDashboard();
             renderNetworkInsights();
@@ -381,25 +409,22 @@
             const specialists = processedPeople.filter(p => p.classification === 'specialist').length;
             const connected = processedPeople.filter(p => p.classification === 'connected').length;
             
-            // Count unique events
-            const allEvents = processedPeople.flatMap(p => {
-                const events = [];
-                if (p.checkin_2G1B) events.push('2G1B');
-                if (p.checkin_HAMVER) events.push('HAMVER');
-                if (p.checkin_JOKE) events.push('JOKE');
-                if (p.checkin_ILU) events.push('ILU');
-                return events;
-            });
-            const uniqueEvents = [...new Set(allEvents)].length;
+            // Count unique events from the data
+            const eventFields = ['checkin_2G1B', 'checkin_HAMVER', 'checkin_JOKE', 'checkin_ILU'];
+            const uniqueEvents = eventFields.filter(field => 
+                processedPeople.some(p => p[field] && p[field] !== '')
+            ).length;
             
             // Calculate avg connection strength (people who attended multiple events)
             const multiEventAttendees = processedPeople.filter(p => p.eventsAttended > 1).length;
-            const connectionStrength = Math.round((multiEventAttendees / totalPeople) * 100);
+            const connectionStrength = totalPeople > 0 ? Math.round((multiEventAttendees / totalPeople) * 100) : 0;
             
             document.getElementById('totalPeople').textContent = totalPeople.toLocaleString();
             document.getElementById('totalEvents').textContent = uniqueEvents;
             document.getElementById('connectionStrength').textContent = connectionStrength + '%';
             document.getElementById('superconnectors').textContent = superconnectors + specialists; // Combined high-value
+            
+            updateDimensionStatuses();
         }
         
         function renderNetworkInsights() {
@@ -469,47 +494,23 @@
             if (processedPeople.length > 0) {
                 // Update crypto footprint status
                 const cryptoCards = document.querySelectorAll('.dimension-card');
-                cryptoCards[1].querySelector('.dimension-status').textContent = 'Analyzed';
-                cryptoCards[1].querySelector('.dimension-status').className = 'dimension-status status-available';
+                if (cryptoCards[1]) {
+                    cryptoCards[1].querySelector('.dimension-status').textContent = 'Analyzed';
+                    cryptoCards[1].querySelector('.dimension-status').className = 'dimension-status status-available';
+                }
                 
                 // Update communication style status
-                cryptoCards[4].querySelector('.dimension-status').textContent = 'Basic Classification';
-                cryptoCards[4].querySelector('.dimension-status').className = 'dimension-status status-partial';
+                if (cryptoCards[4]) {
+                    cryptoCards[4].querySelector('.dimension-status').textContent = 'Basic Classification';
+                    cryptoCards[4].querySelector('.dimension-status').className = 'dimension-status status-partial';
+                }
                 
                 // Update influence metrics status
-                cryptoCards[5].querySelector('.dimension-status').textContent = 'Calculated';
-                cryptoCards[5].querySelector('.dimension-status').className = 'dimension-status status-partial';
+                if (cryptoCards[5]) {
+                    cryptoCards[5].querySelector('.dimension-status').textContent = 'Calculated';
+                    cryptoCards[5].querySelector('.dimension-status').className = 'dimension-status status-partial';
+                }
             }
-        }
-        
-        // Auto-update after processing
-        function updateDashboard() {
-            const totalPeople = processedPeople.length;
-            const superconnectors = processedPeople.filter(p => p.classification === 'superconnector').length;
-            const specialists = processedPeople.filter(p => p.classification === 'specialist').length;
-            const connected = processedPeople.filter(p => p.classification === 'connected').length;
-            
-            // Count unique events
-            const allEvents = processedPeople.flatMap(p => {
-                const events = [];
-                if (p.checkin_2G1B) events.push('2G1B');
-                if (p.checkin_HAMVER) events.push('HAMVER');
-                if (p.checkin_JOKE) events.push('JOKE');
-                if (p.checkin_ILU) events.push('ILU');
-                return events;
-            });
-            const uniqueEvents = [...new Set(allEvents)].length;
-            
-            // Calculate avg connection strength (people who attended multiple events)
-            const multiEventAttendees = processedPeople.filter(p => p.eventsAttended > 1).length;
-            const connectionStrength = Math.round((multiEventAttendees / totalPeople) * 100);
-            
-            document.getElementById('totalPeople').textContent = totalPeople.toLocaleString();
-            document.getElementById('totalEvents').textContent = uniqueEvents;
-            document.getElementById('connectionStrength').textContent = connectionStrength + '%';
-            document.getElementById('superconnectors').textContent = superconnectors + specialists; // Combined high-value
-            
-            updateDimensionStatuses();
         }
     </script>
 </body>
