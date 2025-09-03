@@ -371,60 +371,83 @@
         }
         
         // Generate fake but convincing network data
-        function generateNetworkNodes() {
-            const detailedProfiles = [
-                {
-                    name: "Alex Chen", 
-                    twitter: "@alexbuilds", 
-                    ethos: 87, 
-                    events: ["HAMVER", "JOKE", "ILU"], 
-                    friends: ["Sarah Kim", "Emma Rodriguez"], 
-                    classification: "superconnector",
-                    interests: ["DeFi", "AI", "Philosophy"],
-                    cluster: "crypto-native",
-                    clickable: true
-                },
-                {
-                    name: "Sarah Kim", 
-                    twitter: "@sarahdefi", 
-                    ethos: 92, 
-                    events: ["2G1B", "HAMVER", "JOKE"], 
-                    friends: ["Alex Chen", "Emma Rodriguez"], 
-                    classification: "specialist",
-                    interests: ["DeFi", "NFTs", "Fashion"],
-                    cluster: "crypto-native",
-                    clickable: true
-                },
-                {
-                    name: "Emma Rodriguez", 
-                    twitter: "@emmarodriguez", 
-                    ethos: 95, 
-                    events: ["HAMVER", "JOKE", "ILU", "2G1B"], 
-                    friends: ["Alex Chen", "Sarah Kim"], 
-                    classification: "superconnector",
-                    interests: ["DeFi", "NFTs", "AI"],
-                    cluster: "crypto-native",
-                    clickable: true
-                }
-            ];
-            
-            // Generate 35+ additional nodes for visual density
-            const additionalNodes = [];
-            const firstNames = ["Mike", "Lisa", "David", "Jake", "Maya", "Ryan", "Sofia", "Nathan", "Zoe", "Tyler", "Aria", "Lucas", "Chloe", "Ethan", "Grace", "Owen", "Lily", "Caleb", "Mia", "Noah", "Eva", "Liam", "Ava", "Mason", "Ella", "Logan", "Carter", "Hannah", "James", "Olivia", "Ben", "Zara", "Max", "Ruby", "Sam"];
-            const clusters = ["crypto-native", "tech-creative", "traditional-finance", "academic", "art-collective"];
-            const classifications = ["connected", "normie", "specialist", "lurker"];
-            
-            for (let i = 0; i < 35; i++) {
-                additionalNodes.push({
-                    name: firstNames[i % firstNames.length],
-                    cluster: clusters[Math.floor(Math.random() * clusters.length)],
-                    classification: classifications[Math.floor(Math.random() * classifications.length)],
-                    clickable: false
-                });
-            }
-            
-            return [...detailedProfiles, ...additionalNodes];
+       function generateNetworkNodes() {
+    // One detailed clickable profile per cluster
+    const detailedProfiles = [
+        {
+            name: "Alex Chen", 
+            twitter: "@alexbuilds", 
+            ethos: 87, 
+            events: ["HAMVER", "JOKE", "ILU"], 
+            friends: ["Sarah Kim", "Maya Rodriguez"], 
+            classification: "superconnector",
+            interests: ["DeFi", "AI", "Philosophy"],
+            cluster: "crypto-native",
+            clickable: true
+        },
+        {
+            name: "Sarah Kim", 
+            twitter: "@sarahdefi", 
+            ethos: 92, 
+            events: ["2G1B", "HAMVER"], 
+            friends: ["Alex Chen", "David Park"], 
+            classification: "specialist",
+            interests: ["Fashion", "AI", "Philosophy"],
+            cluster: "tech-creative",
+            clickable: true
+        },
+        {
+            name: "Mike Torres", 
+            twitter: "@miketorres", 
+            ethos: 78, 
+            events: ["ILU"], 
+            friends: ["Lisa Wang", "David Park"], 
+            classification: "connected",
+            interests: ["Finance", "Real Estate"],
+            cluster: "traditional-finance",
+            clickable: true
+        },
+        {
+            name: "Dr. Lisa Wang", 
+            twitter: "@drwang", 
+            ethos: 84, 
+            events: ["HAMVER"], 
+            friends: ["Mike Torres", "James Wilson"], 
+            classification: "specialist",
+            interests: ["AI", "Research", "Philosophy"],
+            cluster: "academic",
+            clickable: true
+        },
+        {
+            name: "Zoe Martinez", 
+            twitter: "@zoecreates", 
+            ethos: 91, 
+            events: ["JOKE", "ILU"], 
+            friends: ["Emma Chen", "Sofia Park"], 
+            classification: "superconnector",
+            interests: ["Fashion", "NFTs", "Art"],
+            cluster: "art-collective",
+            clickable: true
         }
+    ];
+    
+    // Generate 100+ additional nodes
+    const additionalNodes = [];
+    const firstNames = ["Jake", "Maya", "Ryan", "Sofia", "Nathan", "Aria", "Lucas", "Chloe", "Ethan", "Grace", "Owen", "Ruby", "Caleb", "Mia", "Noah", "Eva", "Liam", "Ava", "Mason", "Ella", "Logan", "Scarlett", "Carter", "Hannah", "James", "Olivia", "Ben", "Zara", "Max", "Luna", "Sam", "Iris", "Leo", "Nova", "Kai", "Sage", "Finn", "Ivy", "Cole", "Jade", "Blake", "Sky", "Drew", "Rain", "Quinn", "River", "Phoenix", "Wren", "Atlas", "Ember"];
+    const clusters = ["crypto-native", "tech-creative", "traditional-finance", "academic", "art-collective"];
+    const classifications = ["connected", "normie", "specialist", "lurker"];
+    
+    for (let i = 0; i < 105; i++) {
+        additionalNodes.push({
+            name: firstNames[i % firstNames.length] + " " + (Math.floor(i/10) + 1),
+            cluster: clusters[Math.floor(Math.random() * clusters.length)],
+            classification: classifications[Math.floor(Math.random() * classifications.length)],
+            clickable: false
+        });
+    }
+    
+    return [...detailedProfiles, ...additionalNodes];
+}
         
         function drawNetworkGraph() {
             const canvas = document.getElementById('networkCanvas');
