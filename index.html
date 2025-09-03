@@ -371,82 +371,93 @@
         }
         
         // Generate fake but convincing network data
-       function generateNetworkNodes() {
-    // One detailed clickable profile per cluster
-    const detailedProfiles = [
+      function generateNetworkNodes() {
+    // Bridge connectors - people who span multiple clusters
+    const bridgeConnectors = [
         {
-            name: "Alex Chen", 
-            twitter: "@alexbuilds", 
-            ethos: 87, 
-            events: ["HAMVER", "JOKE", "ILU"], 
-            friends: ["Sarah Kim", "Maya Rodriguez"], 
+            name: "Maya Chen", 
+            twitter: "@mayabridge", 
+            ethos: 94, 
+            events: ["HAMVER", "JOKE", "ILU", "2G1B"], 
+            friends: ["Bridge between crypto & academia"], 
             classification: "superconnector",
-            interests: ["DeFi", "AI", "Philosophy"],
+            interests: ["DeFi", "Research", "Philosophy"],
             cluster: "crypto-native",
+            bridgeTo: ["academic"],
             clickable: true
         },
         {
-            name: "Sarah Kim", 
-            twitter: "@sarahdefi", 
-            ethos: 92, 
+            name: "Alex Torres", 
+            twitter: "@alextechfin", 
+            ethos: 88, 
             events: ["2G1B", "HAMVER"], 
-            friends: ["Alex Chen", "David Park"], 
+            friends: ["Connects tech creatives to finance"], 
             classification: "specialist",
-            interests: ["Fashion", "AI", "Philosophy"],
+            interests: ["AI", "Finance", "Startups"],
             cluster: "tech-creative",
+            bridgeTo: ["traditional-finance"],
             clickable: true
         },
         {
-            name: "Mike Torres", 
-            twitter: "@miketorres", 
-            ethos: 78, 
-            events: ["ILU"], 
-            friends: ["Lisa Wang", "David Park"], 
-            classification: "connected",
-            interests: ["Finance", "Real Estate"],
-            cluster: "traditional-finance",
-            clickable: true
-        },
-        {
-            name: "Dr. Lisa Wang", 
-            twitter: "@drwang", 
-            ethos: 84, 
-            events: ["HAMVER"], 
-            friends: ["Mike Torres", "James Wilson"], 
-            classification: "specialist",
-            interests: ["AI", "Research", "Philosophy"],
-            cluster: "academic",
-            clickable: true
-        },
-        {
-            name: "Zoe Martinez", 
-            twitter: "@zoecreates", 
+            name: "Sofia Park", 
+            twitter: "@sofiaart", 
             ethos: 91, 
             events: ["JOKE", "ILU"], 
-            friends: ["Emma Chen", "Sofia Park"], 
+            friends: ["Links art world to crypto"], 
             classification: "superconnector",
-            interests: ["Fashion", "NFTs", "Art"],
+            interests: ["NFTs", "Fashion", "Art"],
             cluster: "art-collective",
+            bridgeTo: ["crypto-native"],
+            clickable: true
+        },
+        {
+            name: "Dr. Ryan Kim", 
+            twitter: "@dryankim", 
+            ethos: 85, 
+            events: ["HAMVER"], 
+            friends: ["Academic bridge to tech"], 
+            classification: "specialist",
+            interests: ["AI", "Research", "Tech"],
+            cluster: "academic",
+            bridgeTo: ["tech-creative"],
+            clickable: true
+        },
+        {
+            name: "Emma Rodriguez", 
+            twitter: "@emmafin", 
+            ethos: 82, 
+            events: ["2G1B"], 
+            friends: ["Finance bridge to art world"], 
+            classification: "connected",
+            interests: ["Finance", "Art", "Fashion"],
+            cluster: "traditional-finance",
+            bridgeTo: ["art-collective"],
             clickable: true
         }
     ];
     
-    // Generate 100+ additional nodes
+    // Generate cluster-specific nodes
     const additionalNodes = [];
-    const firstNames = ["Jake", "Maya", "Ryan", "Sofia", "Nathan", "Aria", "Lucas", "Chloe", "Ethan", "Grace", "Owen", "Ruby", "Caleb", "Mia", "Noah", "Eva", "Liam", "Ava", "Mason", "Ella", "Logan", "Scarlett", "Carter", "Hannah", "James", "Olivia", "Ben", "Zara", "Max", "Luna", "Sam", "Iris", "Leo", "Nova", "Kai", "Sage", "Finn", "Ivy", "Cole", "Jade", "Blake", "Sky", "Drew", "Rain", "Quinn", "River", "Phoenix", "Wren", "Atlas", "Ember"];
-    const clusters = ["crypto-native", "tech-creative", "traditional-finance", "academic", "art-collective"];
-    const classifications = ["connected", "normie", "specialist", "lurker"];
+    const clusterData = {
+        "crypto-native": {names: ["Zefram", "0xAlex", "DeFiMike", "CryptoSarah", "BlockLisa", "EthJake", "SolMaya", "NFTRyan", "DaoSofia", "MetaNathan", "Web3Zoe", "DegenTyler", "YieldAria", "SwapLucas", "MintChloe", "StakeEthan", "FarmGrace", "PoolOwen", "LiquidLily", "BridgeCaleb"], count: 25},
+        "tech-creative": {names: ["DevZoe", "UITyler", "CodeAria", "TechLucas", "StartupChloe", "AIEthan", "BuildGrace", "HackOwen", "DevLily", "CodeCaleb", "DesignMia", "ProductNoah", "GrowthEva", "DataLiam", "CloudAva", "FullMason", "ReactElla", "NodeLogan", "APICarter", "MLHannah"], count: 20},
+        "traditional-finance": {names: ["WallMia", "BankNoah", "FundEva", "TradeLiam", "FinAva", "VCMason", "PEElla", "HFLogan", "IBCarter", "MgmtHannah", "EquityJames", "DebtOlivia", "CreditBen", "RiskZara", "CompMax", "AuditRuby", "TaxSam", "M&AIris", "IPOLeo", "BondNova"], count: 20},
+        "academic": {names: ["ProfJames", "DrOlivia", "ResBen", "AcadZara", "StudyMax", "ThinkRuby", "LearnSam", "TeachIris", "PhdLeo", "LabNova", "ThesisKai", "GrantSage", "PaperFinn", "CiteLily", "ReviewIvy", "EditCole", "PeerJade", "JournalBlake", "ConfSky", "SympDrew"], count: 20},
+        "art-collective": {names: ["ArtKai", "CreatSage", "DesignFinn", "MakeIvy", "CraftCole", "StudioJade", "GalleryBlake", "PaintSky", "SculptDrew", "PhotoRain", "CanvasQuinn", "BrushRiver", "ColorPhoenix", "FormWren", "TextureAtlas", "PatternEmber", "ShadeAurora", "TintCosmo", "HueZen", "ToneLux"], count: 25}
+    };
     
-    for (let i = 0; i < 105; i++) {
-        additionalNodes.push({
-            name: firstNames[i % firstNames.length] + " " + (Math.floor(i/10) + 1),
-            cluster: clusters[Math.floor(Math.random() * clusters.length)],
-            classification: classifications[Math.floor(Math.random() * classifications.length)],
-            clickable: false
-        });
-    }
+    Object.entries(clusterData).forEach(([cluster, data]) => {
+        for (let i = 0; i < data.count; i++) {
+            additionalNodes.push({
+                name: data.names[i % data.names.length],
+                cluster: cluster,
+                classification: ["connected", "normie", "specialist", "lurker"][Math.floor(Math.random() * 4)],
+                clickable: false
+            });
+        }
+    });
     
-    return [...detailedProfiles, ...additionalNodes];
+    return [...bridgeConnectors, ...additionalNodes];
 }
         
         function drawNetworkGraph() {
