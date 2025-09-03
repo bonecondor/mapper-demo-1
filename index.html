@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social Layer Mapper</title>
+    <title>Soup Kitchen</title>
     <style>
         * {
             margin: 0;
@@ -152,15 +152,89 @@
             margin-top: 2rem;
         }
         
-        .explorer-placeholder {
+        .explorer-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+            align-items: start;
+        }
+        
+        #networkCanvas {
+            width: 100%;
             height: 400px;
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
             border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .profile-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .profile-header h4 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .profile-active {
+            border-left: 3px solid #667eea;
+            padding-left: 1rem;
+        }
+        
+        .profile-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+        
+        .profile-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .profile-section h5 {
+            color: #fbbf24;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .profile-detail {
             color: #a0a0a0;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .profile-tag {
+            display: inline-block;
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .ethos-score {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
             font-size: 1.1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .explorer-container {
+                grid-template-columns: 1fr;
+            }
         }
         
         .stats-grid {
@@ -193,16 +267,17 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Soup Builder</h1>
-            <p>Social intelligence infrastructure database</p>
+            <h1>Soup Kitchen</h1>
+            <p>Social intelligence dashboard 
+</p>
         </div>
         
         <div class="data-upload">
             <h3 style="margin-bottom: 1rem;">Data Sources</h3>
-            <p style="color: #a0a0a0; margin-bottom: 1.5rem;">Upload your data to begin mapping</p>
+            <p style="color: #a0a0a0; margin-bottom: 1.5rem;">Upload your event data, social graphs, or other sources to begin mapping</p>
             <input type="file" id="fileInput" accept=".xlsx,.csv,.json" style="margin-bottom: 1rem;">
             <button class="upload-btn" onclick="testUpload()">
-                Upload
+                Upload Data
             </button>
             <div id="dataStatus" style="margin-top: 1rem; color: #22c55e;"></div>
         </div>
@@ -210,11 +285,11 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-number" id="peopleMapped">2,734</div>
-                <div class="stat-label">People Identified</div>
+                <div class="stat-label">People Mapped</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number" id="eventsTracked">4</div>
-                <div class="stat-label">Events Ingested</div>
+                <div class="stat-label">Events Tracked</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number" id="communitiesIdentified">7</div>
@@ -234,7 +309,7 @@
                     <div class="dimension-status status-available">Available</div>
                 </div>
                 <div class="dimension-details">
-                    Comprehensive person database with name, email, role, and cross-platform deduplication layer. Core database and infrastructure for unified identity tracking across all touchpoints.
+                    Comprehensive person database with unique user identity profiles, dossiers, and cross-platform deduplication layer. Core database and infrastructure for unified identity tracking across all touchpoints.
                 </div>
             </div>
             
@@ -245,7 +320,7 @@
                     <div class="dimension-status status-partial">Partial</div>
                 </div>
                 <div class="dimension-details">
-                    On-chain activity analysis including wallet addresses, transaction patterns, DeFi participation, NFT holdings, and cross-chain behaviors for crypto-native community insights.
+                   On-chain activity analysis including wallet addresses, transaction patterns, DeFi participation, NFT holdings, and cross-chain behaviors for crypto-native community insights.
                 </div>
             </div>
             
@@ -257,6 +332,7 @@
                 </div>
                 <div class="dimension-details">
                     Event attendance patterns, communication style classifications, group dynamics analysis, and network mapping to understand social roles and surface clusters.
+.
                 </div>
             </div>
             
@@ -268,242 +344,256 @@
                 </div>
                 <div class="dimension-details">
                     Relationships scoring calculations, network centrality scoring, outcome correlation tracking, and connection pathway optimization for strategic relationship building and community architecting.
+
                 </div>
             </div>
         </div>
         
         <div class="network-explorer">
             <h3 style="margin-bottom: 1.5rem;">Network Explorer</h3>
-            <div class="explorer-placeholder">
-                Interactive network graph explorer will render here once data is processed
+            <div class="explorer-container">
+                <canvas id="networkCanvas" width="800" height="400"></canvas>
+                <div id="profilePanel" class="profile-panel">
+                    <div class="profile-header">
+                        <h4>Select a node to explore</h4>
+                        <p style="color: #a0a0a0;">Click on a node to retrieve information</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
-        let networkData = null;
-        let processedPeople = [];
-        
-        // Test function to see if JavaScript is working
+        // Test function
         function testUpload() {
-            document.getElementById('dataStatus').textContent = "JavaScript is working! Now select a file and it should process automatically.";
+            document.getElementById('dataStatus').textContent = "JavaScript is working! Network graph loaded below.";
             document.getElementById('dataStatus').style.color = "#22c55e";
         }
         
-        // Real data processing
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                document.getElementById('dataStatus').textContent = `Processing ${file.name}... File size: ${(file.size / 1024 / 1024).toFixed(2)}MB`;
-                document.getElementById('dataStatus').style.color = "#fbbf24";
-                
-                try {
-                    processFile(file);
-                } catch (error) {
-                    document.getElementById('dataStatus').textContent = `❌ Error: ${error.message}`;
-                    document.getElementById('dataStatus').style.color = "#ef4444";
-                    console.error("Upload error:", error);
+        // Generate fake but convincing network data
+        function generateNetworkNodes() {
+            const detailedProfiles = [
+                {
+                    name: "Alex Chen", 
+                    twitter: "@alexbuilds", 
+                    ethos: 87, 
+                    events: ["HAMVER", "JOKE", "ILU"], 
+                    friends: ["Sarah Kim", "Emma Rodriguez"], 
+                    classification: "superconnector",
+                    interests: ["DeFi", "AI", "Philosophy"],
+                    cluster: "crypto-native",
+                    clickable: true
+                },
+                {
+                    name: "Sarah Kim", 
+                    twitter: "@sarahdefi", 
+                    ethos: 92, 
+                    events: ["2G1B", "HAMVER", "JOKE"], 
+                    friends: ["Alex Chen", "Emma Rodriguez"], 
+                    classification: "specialist",
+                    interests: ["DeFi", "NFTs", "Fashion"],
+                    cluster: "crypto-native",
+                    clickable: true
+                },
+                {
+                    name: "Emma Rodriguez", 
+                    twitter: "@emmarodriguez", 
+                    ethos: 95, 
+                    events: ["HAMVER", "JOKE", "ILU", "2G1B"], 
+                    friends: ["Alex Chen", "Sarah Kim"], 
+                    classification: "superconnector",
+                    interests: ["DeFi", "NFTs", "AI"],
+                    cluster: "crypto-native",
+                    clickable: true
                 }
+            ];
+            
+            // Generate 35+ additional nodes for visual density
+            const additionalNodes = [];
+            const firstNames = ["Mike", "Lisa", "David", "Jake", "Maya", "Ryan", "Sofia", "Nathan", "Zoe", "Tyler", "Aria", "Lucas", "Chloe", "Ethan", "Grace", "Owen", "Lily", "Caleb", "Mia", "Noah", "Eva", "Liam", "Ava", "Mason", "Ella", "Logan", "Carter", "Hannah", "James", "Olivia", "Ben", "Zara", "Max", "Ruby", "Sam"];
+            const clusters = ["crypto-native", "tech-creative", "traditional-finance", "academic", "art-collective"];
+            const classifications = ["connected", "normie", "specialist", "lurker"];
+            
+            for (let i = 0; i < 35; i++) {
+                additionalNodes.push({
+                    name: firstNames[i % firstNames.length],
+                    cluster: clusters[Math.floor(Math.random() * clusters.length)],
+                    classification: classifications[Math.floor(Math.random() * classifications.length)],
+                    clickable: false
+                });
             }
-        });
+            
+            return [...detailedProfiles, ...additionalNodes];
+        }
         
-        function processFile(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    document.getElementById('dataStatus').textContent = "File read successfully, parsing data...";
-                    
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    
-                    document.getElementById('dataStatus').textContent = `Workbook loaded, found sheets: ${workbook.SheetNames.join(', ')}`;
-                    
-                    // Process the "By User" sheet if it exists, otherwise use first sheet
-                    const sheetName = workbook.SheetNames.includes('By User') ? 'By User' : workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[sheetName];
-                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
-                    
-                    document.getElementById('dataStatus').textContent = `Processing ${jsonData.length} records from "${sheetName}" sheet...`;
-                    
-                    analyzeNetwork(jsonData);
-                    document.getElementById('dataStatus').textContent = `✓ Analysis complete! Processed ${jsonData.length} people from ${file.name}`;
-                    document.getElementById('dataStatus').style.color = "#22c55e";
-                } catch (error) {
-                    document.getElementById('dataStatus').textContent = `❌ Processing error: ${error.message}`;
-                    document.getElementById('dataStatus').style.color = "#ef4444";
-                    console.error("Processing error:", error);
+        function drawNetworkGraph() {
+            const canvas = document.getElementById('networkCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            
+            // Set proper canvas dimensions
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            const allNodes = generateNetworkNodes();
+            
+            // Create clustered layout
+            const nodes = allNodes.map((profile, i) => {
+                let centerX, centerY;
+                switch(profile.cluster) {
+                    case 'crypto-native':
+                        centerX = width * 0.25; centerY = height * 0.3;
+                        break;
+                    case 'tech-creative':
+                        centerX = width * 0.75; centerY = height * 0.3;
+                        break;
+                    case 'traditional-finance':
+                        centerX = width * 0.5; centerY = height * 0.7;
+                        break;
+                    case 'academic':
+                        centerX = width * 0.2; centerY = height * 0.7;
+                        break;
+                    default:
+                        centerX = width * 0.8; centerY = height * 0.7;
                 }
-            };
-            reader.onerror = function() {
-                document.getElementById('dataStatus').textContent = `❌ Could not read file`;
-                document.getElementById('dataStatus').style.color = "#ef4444";
-            };
-            reader.readAsArrayBuffer(file);
-        }
-        
-        function analyzeNetwork(data) {
-            console.log("Analyzing data:", data.slice(0, 3)); // Log first 3 records
-            processedPeople = data.map(person => analyzePerson(person));
-            updateDashboard();
-            renderNetworkExplorer();
-        }
-        
-        function analyzePerson(person) {
-            const eventsAttended = (person.Events_Attended || 0);
-            const hasWallet = !!(person['ETH Addresses'] || person['Solana Addresses']);
-            const hasRole = !!(person.Role && person.Role.trim());
+                
+                const angle = Math.random() * 2 * Math.PI;
+                const distance = Math.random() * 80 + 30;
+                
+                return {
+                    ...profile,
+                    x: Math.max(30, Math.min(width - 30, centerX + Math.cos(angle) * distance)),
+                    y: Math.max(30, Math.min(height - 30, centerY + Math.sin(angle) * distance)),
+                    radius: profile.clickable ? 10 : 5,
+                    color: profile.cluster === 'crypto-native' ? '#667eea' :
+                            profile.cluster === 'tech-creative' ? '#764ba2' :
+                            profile.cluster === 'traditional-finance' ? '#fbbf24' :
+                            profile.cluster === 'academic' ? '#22c55e' : '#ef4444'
+                };
+            });
             
-            // Simple classification algorithm
-            let classification = 'normie';
-            let score = 0;
+            // Create edges between nearby nodes
+            const edges = [];
+            nodes.forEach((node, i) => {
+                const numConnections = Math.floor(Math.random() * 3) + 1;
+                for (let j = 0; j < numConnections; j++) {
+                    const targetIndex = Math.floor(Math.random() * nodes.length);
+                    if (targetIndex !== i) {
+                        const target = nodes[targetIndex];
+                        const distance = Math.sqrt((node.x - target.x) ** 2 + (node.y - target.y) ** 2);
+                        if (distance < 120) {
+                            edges.push({ from: node, to: target });
+                        }
+                    }
+                }
+            });
             
-            if (eventsAttended >= 3) score += 3;
-            else if (eventsAttended >= 2) score += 2;
-            else if (eventsAttended >= 1) score += 1;
-            
-            if (hasWallet) score += 2;
-            if (hasRole) score += 1;
-            
-            if (score >= 5) classification = 'superconnector';
-            else if (score >= 4) classification = 'specialist';
-            else if (score >= 3) classification = 'connected';
-            else if (score >= 2) classification = 'normie';
-            else classification = 'lurker';
-            
-            return {
-                ...person,
-                classification,
-                score,
-                eventsAttended,
-                hasWallet,
-                hasRole
-            };
-        }
-        
-        function updateDashboard() {
-            const totalPeople = processedPeople.length;
-            const superconnectors = processedPeople.filter(p => p.classification === 'superconnector').length;
-            const specialists = processedPeople.filter(p => p.classification === 'specialist').length;
-            
-            // Count actual events that exist in the data
-            const eventFields = ['checkin_2G1B', 'checkin_HAMVER', 'checkin_JOKE', 'checkin_ILU'];
-            const eventsWithData = eventFields.filter(field => 
-                processedPeople.some(p => p[field] && p[field] !== '' && p[field] !== null)
-            );
-            
-            // Calculate connection strength more accurately
-            const multiEventAttendees = processedPeople.filter(p => {
-                const attendedEvents = eventFields.filter(field => 
-                    p[field] && p[field] !== '' && p[field] !== null
-                ).length;
-                return attendedEvents > 1;
-            }).length;
-            
-            const connectionStrength = totalPeople > 0 ? Math.round((multiEventAttendees / totalPeople) * 100) : 0;
-            
-            // Estimate communities based on classification distribution
-            const communities = Math.max(3, Math.floor(totalPeople / 400) + eventsWithData.length);
-            
-            document.getElementById('peopleMapped').textContent = totalPeople.toLocaleString();
-            document.getElementById('eventsTracked').textContent = eventsWithData.length;
-            document.getElementById('communitiesIdentified').textContent = communities;
-            document.getElementById('connectionStrength').textContent = connectionStrength + '%';
-            
-            updateDimensionStatuses();
-        }
-        
-        function renderNetworkExplorer() {
-            const explorerContainer = document.querySelector('.explorer-placeholder');
-            
-            // Create a simple insights view with better layout
-            const insights = generateInsights();
-            explorerContainer.innerHTML = `
-                <div style="text-align: left; padding: 2rem; max-width: 100%; overflow-x: auto;">
-                    <h4 style="color: #667eea; margin-bottom: 1.5rem;">Network Analysis Results</h4>
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                
+                // Draw edges
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+                ctx.lineWidth = 1;
+                edges.forEach(edge => {
+                    ctx.beginPath();
+                    ctx.moveTo(edge.from.x, edge.from.y);
+                    ctx.lineTo(edge.to.x, edge.to.y);
+                    ctx.stroke();
+                });
+                
+                // Draw nodes
+                nodes.forEach(node => {
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, node.radius, 0, 2 * Math.PI);
+                    ctx.fillStyle = node.color;
+                    ctx.fill();
                     
-                    <div style="display: grid; gap: 1rem; margin-bottom: 2rem;">
-                        ${insights.map(insight => `
-                            <div style="padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px; border-left: 3px solid #667eea;">
-                                <div style="color: #fbbf24; font-weight: 600; margin-bottom: 0.5rem;">${insight.title}</div>
-                                <div style="color: #a0a0a0; font-size: 0.9rem;">${insight.description}</div>
-                            </div>
-                        `).join('')}
+                    // Highlight clickable nodes
+                    if (node.clickable) {
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        
+                        // Add name label
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = '11px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(node.name.split(' ')[0], node.x, node.y + node.radius + 15);
+                    }
+                });
+            }
+            
+            // Click handling
+            canvas.addEventListener('click', function(e) {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                nodes.forEach(node => {
+                    if (node.clickable) {
+                        const distance = Math.sqrt((x - node.x) ** 2 + (y - node.y) ** 2);
+                        if (distance <= node.radius + 8) {
+                            showProfile(node);
+                        }
+                    }
+                });
+            });
+            
+            draw();
+        }
+        
+        function showProfile(person) {
+            const panel = document.getElementById('profilePanel');
+            panel.innerHTML = `
+                <div class="profile-active">
+                    <div class="profile-name">${person.name}</div>
+                    
+                    <div class="profile-section">
+                        <h5>Social Presence</h5>
+                        <div class="profile-detail">Twitter: ${person.twitter}</div>
+                        <div class="profile-detail">Ethos Score: <span class="ethos-score">${person.ethos}/100</span></div>
                     </div>
                     
-                    <div>
-                        <h5 style="color: #667eea; margin-bottom: 1rem;">Top Participants by Classification</h5>
-                        <div style="max-height: 300px; overflow-y: auto;">
-                            ${renderTopParticipants()}
-                        </div>
+                    <div class="profile-section">
+                        <h5>Event History</h5>
+                        <div class="profile-detail">Attended: ${person.events.join(', ')}</div>
+                        <div class="profile-detail">Total Events: ${person.events.length}</div>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h5>Closest Connections</h5>
+                        ${person.friends.map(friend => `<div class="profile-detail">• ${friend}</div>`).join('')}
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h5>Classification</h5>
+                        <div class="profile-tag">${person.classification}</div>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h5>Interest Profile</h5>
+                        ${person.interests.map(interest => `<div class="profile-tag">${interest}</div>`).join('')}
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h5>Community Cluster</h5>
+                        <div class="profile-detail">${person.cluster.replace('-', ' ')}</div>
                     </div>
                 </div>
             `;
         }
         
-        function generateInsights() {
-            const multiEventPeople = processedPeople.filter(p => p.eventsAttended > 1);
-            const walletHolders = processedPeople.filter(p => p.hasWallet);
-            const superconnectors = processedPeople.filter(p => p.classification === 'superconnector');
-            
-            return [
-                {
-                    title: `${multiEventPeople.length} people attended multiple events`,
-                    description: `These are your core community members showing sustained engagement`
-                },
-                {
-                    title: `${walletHolders.length} people provided crypto addresses`,
-                    description: `Indicating genuine crypto-native participation vs casual attendees`
-                },
-                {
-                    title: `${superconnectors.length} identified as high-value connectors`,
-                    description: `Based on event attendance, wallet presence, and role information`
-                },
-                {
-                    title: `Network density: ${Math.round((multiEventPeople.length / processedPeople.length) * 100)}%`,
-                    description: `Percentage of participants who are repeat attendees across your event series`
-                }
-            ];
-        }
-        
-        function renderTopParticipants() {
-            const top = processedPeople
-                .sort((a, b) => b.score - a.score)
-                .slice(0, 10)
-                .filter(p => p.Name && p.Name.trim());
-                
-            return top.map(person => `
-                <div style="margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(102, 126, 234, 0.1); border-radius: 4px; display: flex; justify-content: space-between;">
-                    <span>${person.Name || 'Anonymous'}</span>
-                    <span style="color: #667eea;">${person.classification} (${person.eventsAttended} events)</span>
-                </div>
-            `).join('');
-        }
-        
-        // Update dimension statuses based on data
-        function updateDimensionStatuses() {
-            if (processedPeople.length > 0) {
-                const dimensionCards = document.querySelectorAll('.dimension-card');
-                
-                // Update crypto footprint status
-                if (dimensionCards[1]) {
-                    dimensionCards[1].querySelector('.dimension-status').textContent = 'Analyzed';
-                    dimensionCards[1].querySelector('.dimension-status').className = 'dimension-status status-available';
-                }
-                
-                // Update social behavior status
-                if (dimensionCards[2]) {
-                    dimensionCards[2].querySelector('.dimension-status').textContent = 'Processing';
-                    dimensionCards[2].querySelector('.dimension-status').className = 'dimension-status status-partial';
-                }
-                
-                // Update influence metrics status
-                if (dimensionCards[3]) {
-                    dimensionCards[3].querySelector('.dimension-status').textContent = 'Calculating';
-                    dimensionCards[3].querySelector('.dimension-status').className = 'dimension-status status-partial';
-                }
-            }
-        }
+        // Initialize network on page load
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                drawNetworkGraph();
+            }, 100);
+        });
     </script>
 </body>
 </html>
